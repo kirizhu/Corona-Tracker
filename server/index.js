@@ -51,15 +51,15 @@ const fetchDaily = async () => {
 
 const dateFormat = () => {
   let date = new Date();
-  date.setDate(date.getDate() - 2);
+  date.setDate(date.getDate() - 3);
   return date.toISOString().slice(0, 10).split('-').join('');
 };
 
-app.get('/', async (req, res) => {
+app.get('/api', async (req, res) => {
   let currentData = await fetchCurrent();
   let dailyData = await fetchDaily();
   for (let i = 0; i < currentData.length; i++) {
-    currentData[i].oldDeath = dailyData[i];
+    currentData[i].last3Days = currentData[i].death - dailyData[i];
   }
   res.send(currentData);
 });
