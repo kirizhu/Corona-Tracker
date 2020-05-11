@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
+import {
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from '@material-ui/core';
+
 import axios from 'axios';
 
 const StyledTableCell = withStyles((theme) => ({
@@ -33,29 +37,20 @@ const useStyles = makeStyles({
   },
 });
 
-const sortState = (states) => {
-  states.sort((a, b) => a.state.localeCompare(b.state));
-};
-
-const sortHospitalized = (states) => {
-  states.sort((a, b) =>
-    a.hospitalizedCurrently.localeCompare(b.hospitalizedCurrently)
-  );
-};
-const sortLast3Days = (states) => {
-  states.sort((a, b) => a.last3Days - b.last3Days);
-};
-
 function MyTable() {
   const classes = useStyles();
   const [states, setStates] = useState([]);
+  const [order, setOrder] = useState(false);
+  const [stateOrder, setStateOrder] = useState(false);
+  const [error, setError] = useState('');
 
   const fetchData = async () => {
     try {
-      const { data } = await axios.get('http://localhost:3000/api');
+      const { data } = await axios.get('/api');
       setStates(data);
+      setError(null);
     } catch (error) {
-      return error;
+      setError(error.message);
     }
   };
   useEffect(() => {
@@ -64,42 +59,78 @@ function MyTable() {
 
   useEffect(() => {}, [states]);
 
-  const sortDeath = () => {
-    setStates([...states].sort((a, b) => a.death - b.death));
+  const sortHighLow = (sortType) => {
+    if (!order) {
+      setStates([...states].sort((a, b) => a[sortType] - b[sortType]));
+      setOrder(true);
+    } else if (order) {
+      setStates([...states].sort((a, b) => b[sortType] - a[sortType]));
+      setOrder(false);
+    }
   };
-
+  const sortState = () => {
+    if (!stateOrder) {
+      setStates([...states].sort((a, b) => a.state.localeCompare(b.state)));
+      setStateOrder(true);
+    } else if (stateOrder) {
+      setStates([...states].sort((a, b) => b.state.localeCompare(a.state)));
+      setStateOrder(false);
+    }
+  };
   return (
     <TableContainer component={Paper}>
-      <Table className={classes.table} aria-label='customized table'>
-        <TableHead>
-          <TableRow>
-            <StyledTableCell>
-              <a onClick={() => sortDeath()}>States (US)</a>
-            </StyledTableCell>
-            <StyledTableCell align='right'>Deaths (total)</StyledTableCell>
-            <StyledTableCell align='right'>
-              Hospitalized (currently)
-            </StyledTableCell>
-            <StyledTableCell align='right'>
-              Deaths (last 3 days)
-            </StyledTableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {states.map((item, i) => (
-            <StyledTableRow key={i}>
-              <StyledTableCell component='th' scope='row'>
-                {item.state}
+      {error ? (
+        <h1>{error}</h1>
+      ) : (
+        <Table className={classes.table} aria-label='customized table'>
+          <TableHead>
+            <TableRow>
+              <StyledTableCell>
+                <Button color='secondary' onClick={() => sortState()}>
+                  States (US)
+                </Button>
               </StyledTableCell>
-              <StyledTableCell align='right'>{item.death}</StyledTableCell>
               <StyledTableCell align='right'>
-                {item.hospitalizedCurrently ? item.hospitalizedCurrently : 0}
+                <Button color='primary' onClick={() => sortHighLow('death')}>
+                  Deaths (total)
+                </Button>
               </StyledTableCell>
-              <StyledTableCell align='right'>{item.last3Days}</StyledTableCell>
-            </StyledTableRow>
-          ))}
-        </TableBody>
-      </Table>
+              <StyledTableCell align='right'>
+                <Button
+                  color='primary'
+                  onClick={() => sortHighLow('hospitalizedCurrently')}
+                >
+                  Hospitalized (currently)
+                </Button>
+              </StyledTableCell>
+              <StyledTableCell align='right'>
+                <Button
+                  color='primary'
+                  onClick={() => sortHighLow('last3Days')}
+                >
+                  Deaths (last 3 days)
+                </Button>
+              </StyledTableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {states.map((item, i) => (
+              <StyledTableRow key={i}>
+                <StyledTableCell component='th' scope='row'>
+                  {item.state}
+                </StyledTableCell>
+                <StyledTableCell align='right'>{item.death}</StyledTableCell>
+                <StyledTableCell align='right'>
+                  {item.hospitalizedCurrently ? item.hospitalizedCurrently : 0}
+                </StyledTableCell>
+                <StyledTableCell align='right'>
+                  {item.last3Days}
+                </StyledTableCell>
+              </StyledTableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </TableContainer>
   );
 }

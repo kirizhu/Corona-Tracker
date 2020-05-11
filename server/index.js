@@ -25,7 +25,7 @@ const fetchCurrent = async () => {
     const { data } = await axios.get(currentUrl);
     return mapDataCurrent(data);
   } catch (error) {
-    return error;
+    console.log('Error', error.message);
   }
 };
 
@@ -45,7 +45,7 @@ const fetchDaily = async () => {
     const { data } = await axios.get(dailyUrl);
     return mapDataDaily(data);
   } catch (error) {
-    return error;
+    console.log('Error', error.message);
   }
 };
 
