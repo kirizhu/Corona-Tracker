@@ -77,6 +77,9 @@ function MyTable() {
       setStateOrder(false);
     }
   };
+
+  const arrSum = (sortType) => states.reduce((a, b) => a + b[sortType], 0);
+
   return (
     <TableContainer component={Paper}>
       {error ? (
@@ -87,12 +90,12 @@ function MyTable() {
             <TableRow>
               <StyledTableCell>
                 <Button color='secondary' onClick={() => sortState()}>
-                  States (US)
+                  States US ({states.length})
                 </Button>
               </StyledTableCell>
               <StyledTableCell align='right'>
                 <Button color='primary' onClick={() => sortHighLow('death')}>
-                  Deaths (total)
+                  Deaths total ({arrSum('death')})
                 </Button>
               </StyledTableCell>
               <StyledTableCell align='right'>
@@ -100,7 +103,7 @@ function MyTable() {
                   color='primary'
                   onClick={() => sortHighLow('hospitalizedCurrently')}
                 >
-                  Hospitalized (currently)
+                  Hospitalized currently ({arrSum('hospitalizedCurrently')})
                 </Button>
               </StyledTableCell>
               <StyledTableCell align='right'>
@@ -108,7 +111,7 @@ function MyTable() {
                   color='primary'
                   onClick={() => sortHighLow('last3Days')}
                 >
-                  Deaths (last 3 days)
+                  Deaths last 3 days ({arrSum('last3Days')})
                 </Button>
               </StyledTableCell>
             </TableRow>
