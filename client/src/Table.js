@@ -80,7 +80,7 @@ function MyTable() {
   return (
     <TableContainer component={Paper}>
       {error ? (
-        <h1>{error}</h1>
+        <h1>Error: {error}</h1>
       ) : (
         <Table className={classes.table} aria-label='customized table'>
           <TableHead>
